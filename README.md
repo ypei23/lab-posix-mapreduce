@@ -53,8 +53,8 @@ $ cat colors | sort | uniq | wc -l
 > Unfortunately, the `sort` command above is rather expensive.
 > Sorting requires $\Omega(n)$ memory and $\Omega(n\log n)$ compute,
 > and the `sort` command is the only commonly used shell command that does not use `O(1)` memory.
-> Nevertheless, the `sort` command is very efficient.
-> It uses the [external sort procedure](https://en.wikipedia.org/wiki/External_sorting),
+> Still, the `sort` command is about as efficient as theoretically possible.
+> It uses an [external sort algorithm](https://en.wikipedia.org/wiki/External_sorting),
 > which is something that you probably did not study in data structures.
 > External sort is very similar to merge sort, except that the intermediate steps are stored on the hard drive.
 > This allows `sort` to sort extremely large files even on systems with limited RAM.
@@ -116,26 +116,26 @@ You should get a large welcome message printed followed by a new prompt `gnuplot
 
 The simplest command is the `plot` command,
 which just takes as input a filename of data to plot.
+Try it.
 ```
 gnuplot> plot 'colors.dat'
 ```
-If your laptop is a linux machine, then a plot should be displayed on your screen.
-If you're running a Mac or Windows machine, however, running that command will give you an error similar to
+You likely get an error similar to
 ```
 qt.qpa.screen: QXcbConnection: Could not connect to display 
 Could not connect to any X display.
 ```
-(If you got this error on a linux system, you can get rid of it by [adding the `-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) to your ssh command.)
-
 This error message references the [X Window System](https://en.wikipedia.org/wiki/X_Window_System),
 which is a popular system for displaying graphics on Linux machines.
 One of its main advantages is that it allows windows created by remote machines (like the lambda server) to be displayed on your local machine.
 
+If your laptop is a linux machine, then it is easy to solve this problem by enabling "X forwarding" by [adding the `-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) to your ssh command.
+
 > **Note:**
-> The program that lets the lambda server create windows on your machine is called an X server.
-> There exist open source X server implementations for every operations system.
+> There exist open source X Windows implementations for every operations system.
 > [Xming](http://www.straightrunning.com/XmingNotes/) is the most popular one for Windows,
 > and [XQuartz](https://www.xquartz.org/) for Mac.
+> If you installed one of these on your laptop, then you would also be able to open windows on the lambda server and have them appear on your machine.
 > For this lab, however, you don't need to install this software if you don't want to.
 > We'll see alternative ways to get access to the plots.
 
