@@ -18,7 +18,7 @@ We will then see how to make bar charts out of those queries using the terminal 
 
 ## Part 0: Setup
 
-Fork this repo, clone your fork onto the lambda server, and enter the repo directory.
+Fork this repo, clone your fork onto the lambda server, and cd into the repo directory.
 It will be important later that you are working on your forked repo because you'll be uploading images to the repo,
 and you don't have permission to do that to my repo.
 
@@ -87,13 +87,12 @@ $ cat colors | sort | uniq -c | sort -n
 ```
 
 > **Exercise:**
->
 > Use output redirection to store the output of the command above in a file called `colors.dat`.
 > We will use this file to experiment with plotting in the next section.
 
 ## Part 2: Plotting with Gnuplot
 
-It is common to want to plot the results of a count group query as a bar chart.
+It is common to plot the results of a count group query as a bar chart.
 In this section, we'll see how to do that with gnuplot.
 Gnuplot is a popular program for generating charts on the terminal.
 It is [the recommended tool for generating plots for wikipedia](https://en.wikipedia.org/wiki/Wikipedia:How_to_create_charts_for_Wikipedia_articles#Plotting),
@@ -104,7 +103,7 @@ and [most plots on wikipedia were generated with gnuplot](https://commons.wikime
 > and all of the terminal commands we have used so far are part of GNU.
 > [Gnuplot, however, is not affiliated with the GNU project](http://www.gnuplot.info/faq/#x1-120001.7).
 > Therefore, even though [GNU is pronounced with a hard G](https://www.gnu.org/gnu/pronunciation.html),
-> gnuplot is often pronounced as "newplot" using the standard English pronunciation of gnu.
+> gnuplot is canonically pronounced as "newplot" using the standard English pronunciation of gnu.
 > [The authors have a detailed FAQ answer about the origin of the name.](http://www.gnuplot.info/faq/#x1-70001.2):
 
 ### Part 2.a: A First Attempt at Plotting
@@ -189,7 +188,6 @@ We can make this plot a little bit nicer by adding some more formatting commands
 gnuplot> set style data histogram
 gnuplot> set style fill solid border -1
 gnuplot> plot 'colors.dat' using 1:xtic(2) notitle
-```
   12 +---------------------------------------------------------------------+
      |             +             +             +             +             |
      |                                                       ******        |
