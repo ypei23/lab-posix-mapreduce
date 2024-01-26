@@ -271,17 +271,19 @@ then the image below should work.
 If not, ensure that you're looking at your forked repo and not my repo.
 
 Don't move on to the next steps until you're successfully able to view your image.
+Part of the submission for this lab will require that all of these broken image links are replaced with working images.
 
 ## Part 3: Writing Gnuplot Scripts
 
 Working with gnuplot through the terminal interface is possible,
-but it's much more convenient to write scripts that generate plots without manual intervention.
+but it's annoying to have to retype all of those commands anytime we want to make a plot.
+A better solution is to automate plotting with a script.
 We will now see how to write and use these scripts.
 
 Create a file `boxplot.gp` with the following contents.
 ```
 set terminal png size 800,400
-set output 'top10.png'
+set output 'colors.png'
 set style data histogram
 set style fill solid border -1
 plot 'country_code.plot_data' using 1:xtic(2) notitle
@@ -325,7 +327,7 @@ $ ls
 $ cat 'colors.dat' | gnuplot -c boxplot.gp colors.png
 $ ls
 ```
-As before, you should verify that the output of the first `ls` and second `ls` differ only by the newly created `top10.png` file.
+As before, you should verify that the output of the first `ls` and second `ls` differ only by the newly created `colors.png` file.
 
 ## Part 4: Bigger Data
 
@@ -348,7 +350,34 @@ $ unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip \
 | gnuplot -c boxplot.gp top10.png
 ```
 This command takes about 5 minutes to run.
-When it completes, upload the `top10.png` file to github.
+Perhaps surprisingly, the bottleneck of this command is the `jq` command which parses the JSON.
+To verify this, press `^Z` while the program above is running,
+then run the command `ps`.
+You should get output similar to
+```
+$ ps
+  PID TTY          TIME CMD
+10327 pts/3    00:00:00 bash
+25755 pts/3    00:00:22 unzip
+25756 pts/3    00:00:54 jq
+25757 pts/3    00:00:00 sort
+25758 pts/3    00:00:00 uniq
+25759 pts/3    00:00:00 sort
+25760 pts/3    00:00:00 tail
+25761 pts/3    00:00:00 gnuplot
+25825 pts/3    00:00:00 ps
+```
+Recall that `ps` lists all of the processes that are currently running.
+Notice that each of the commands in your shell 1-liner is actually running concurrently.
+The time that is listed for each of these processes is the total amount of CPU time that process has used.
+In the output above, `unzip` has used 22 seconds, and `jq` has used 54 seconds.
+Fortunately, because the lambda server has so many CPUs available, each of these processes will be running on their own CPU and running in parallel.
+The amount of time for the entire command to complete is therefore only the length of time for the slowest command,
+and not the total length of time for all commands.
+In Python, it is essentially impossible to have the unzip and json decoding happen in parallel due to the [Global Interpreter Lock (GIL)](https://wiki.python.org/moin/GlobalInterpreterLock) (although there is [some recent work to fix this peoblem](https://www.infoworld.com/article/3704248/python-moves-to-remove-the-gil-and-boost-concurrency.html)).
+In the shell, it is trivial to have these expensive tasks run in parallel.
+
+When your command completes, upload the `top10.png` file to github.
 You should see it appear below.
 
 <img src=top10.png />
@@ -387,7 +416,7 @@ cat map.geoTwitter20-01-01.zip.dat | while read line; do
 done | sort -n > reduce
 ```
 The while loop above reads each line from stdin (i.e. the output of the `cat` command) one at a time, storing it in the `line` variable.
-We then extract the country code, search all of the map files for that country code, and sum their totals together.
+We then extract the country code, search all of the map files for that country code, and sum their totals together with the `bs` command.
 The final output is re-sorted and stored in the file `reduce`.
 
 > **Exercise:**
@@ -399,7 +428,17 @@ The final output is re-sorted and stored in the file `reduce`.
 
 ## Part 6: MapReduce Challenge
 
-In this section, you 
+In this last section, you will have to write your own MapReduce procedure based on the code above.
+I want you to calculate how many tweets sent from the United States are written in each language over the period Jan 1 to Jan 9 2020.
+
+> **Hint:**
+> You should modify the above commands to filter out tweets that don't come from the US with the `grep` command.
+> You should also modify the command to do a count group by query on the language the tweet was written in.
+> You'll have to examine the JSON objects in order to figure out where this information is stored.
+
+Plot the top 20 languages into the file `uslang-top20.png` and upload it to github.
+
+<img src=uslang-top20.png />
 
 ## Submission
 
