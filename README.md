@@ -15,7 +15,7 @@ We will then see how to make bar charts out of those queries using the terminal 
 
 Fork this repo, clone your fork onto the lambda server, and enter the repo directory.
 It will be important later that you are working on your forked repo because you'll be uploading images to the repo,
-and you don't have permission to do that to this repo.
+and you don't have permission to do that to my repo.
 
 <!--
 ## Part 1: Combining Python with the shell
@@ -148,9 +148,26 @@ $ wc -l country_code
 $ head country_code
 ```
 This dataset has the same number of data points (i.e. lines) as our original dataset,
-but because data point contains much less information,
+but because each data point contains much less information,
 it is much smaller and easier to work with.
 
+> **Exercise:**
+> 
+> Write a one line shell command for computing the count distinct query on the `country_code` file above.
+
+> **Exercise:**
+> 
+> Write a one line shell command for computing the count group query on the `country_code` file above.
+> Additionally, use the `tail` command to extract the 10 largest country/value combinations, and store the results in a file `country_code.plot_data`.
+<!--
+```
+$ cat country_code | sort | uniq -c | sort -n | tail > country_code.plot_data
+```
+-->
+
+We will not see how to plot and visualize this data entirely in the shell.
+
+<!--
 We can now easily count the total number of distinct countries using either our python/shell combo or in pure shell.
 ```
 $ cat country_code | ./count_distinct.py
@@ -183,6 +200,7 @@ Passing the `-n` flag to `sort` accomplishes this.
 ```
 $ cat country_code | sort | uniq -c | sort -n
 ```
+-->
 
 <!--
 ## fancy sorting
@@ -191,11 +209,7 @@ The `sort` command uses an [external sorting procedure](https://en.wikipedia.org
 This is essentially merge sort, but 
 -->
 
-```
-$ cat country_code | sort | uniq -c | sort -n | tail > country_code.plot_data
-```
-
-## Plotting with gnuplot
+## Plotting with Gnuplot
 
 Gnuplot is a popular program for generating charts on the terminal.
 It is [the recommended tool for generating plots for wikipedia](https://en.wikipedia.org/wiki/Wikipedia:How_to_create_charts_for_Wikipedia_articles#Plotting),
@@ -208,9 +222,7 @@ and [most plots on wikipedia were generated with gnuplot](https://commons.wikime
 > [Gnuplot, however, is not affiliated with the GNU project](http://www.gnuplot.info/faq/#x1-120001.7).
 > Therefore, even though [GNU is pronounced with a hard G](https://www.gnu.org/gnu/pronunciation.html),
 > gnuplot is often pronounced as "newplot" using the standard English pronunciation of gnu.
->
-> [One of the authors states](http://www.gnuplot.info/faq/#x1-70001.2):
-> > The name "gnuplot" was actually a compromise. I wanted to call it "llamaplot" and Colin wanted to call it "nplot." We agreed that "newplot" was acceptable but, we then discovered that there was an absolutely ghastly pascal program of that name that the Computer Science Dept. occasionally used. I decided that "gnuplot" would make a nice pun and after a fashion Colin agreed.
+> [The authors have a detailed FAQ answer about the origin of the name.](http://www.gnuplot.info/faq/#x1-70001.2):
 
 Start the gnuplot program.
 ```
