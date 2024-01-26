@@ -1,4 +1,4 @@
-# Lab: Gnuplot
+# Lab: POSIX MapReduce
 
 <!--
 REMINDER TO MYSELF:
@@ -13,14 +13,14 @@ We had two main takeaways:
 1. SQLite requires only $O(1)$ memory,
      and so is suitable for large datasets.
 
-In this lab, we will not see how to run those same queries in the shell.
-We will then see how to make bar charts out of those queries using the terminal program gnuplot.
+In this lab, we will see how to run those same queries in the shell.
+We'll also see how to make nice visualizations of those queries using the terminal program gnuplot,
+and parallelize those queries using MapReduce.
 
 ## Part 0: Setup
 
 Fork this repo, clone your fork onto the lambda server, and cd into the repo directory.
-It will be important later that you are working on your forked repo because you'll be uploading images to the repo,
-and you don't have permission to do that to my repo.
+It will be important later that you are working on your forked repo because you'll be uploading images to the repo for your submission.
 
 ## Part 1: Count Distinct/Group in the Shell
 
@@ -327,7 +327,7 @@ $ ls
 ```
 As before, you should verify that the output of the first `ls` and second `ls` differ only by the newly created `top10.png` file.
 
-## Part 2: Bigger Data
+## Part 4: Bigger Data
 
 Recall that the file `/data/Twitter dataset/geoTwitter20-01-01.zip` contains all of the geolocated tweets sent on January 1st 2020.
 Let's do an analysis to see how many tweets were sent from each country on this day.
@@ -353,7 +353,7 @@ You should see it appear below.
 
 <img src=top10.png />
 
-## Part 3: A Simple MapReduce
+## Part 5: A Simple MapReduce
 
 Recall from the [MapReduce homework](https://github.com/mikeizbicki/twitter_coronavirus) that MapReduce is a parallel procedure for large scale data analysis.
 In MapReduce, the "mappers" analyze small parts of the dataset in parallel, and then the "reducers" combine those results into a final result.
@@ -396,6 +396,10 @@ The final output is re-sorted and stored in the file `reduce`.
 > Upload your plot to github and ensure that it appears below.
 
 <img src=country_code_mapreduce.png />
+
+## Part 6: MapReduce Challenge
+
+In this section, you 
 
 ## Submission
 
