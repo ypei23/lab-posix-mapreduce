@@ -1,5 +1,10 @@
 # Lab: Gnuplot
 
+<!--
+REMINDER TO MYSELF:
+The `notes` branch contains some partially completed lab material.
+-->
+
 Recall that in last week's lab, we saw how to use python and SQL to perform the *count distinct* and *count group* queries.
 We had two main takeaways:
 
@@ -16,64 +21,6 @@ We will then see how to make bar charts out of those queries using the terminal 
 Fork this repo, clone your fork onto the lambda server, and enter the repo directory.
 It will be important later that you are working on your forked repo because you'll be uploading images to the repo,
 and you don't have permission to do that to my repo.
-
-<!--
-## Part 1: Combining Python with the shell
-
-The file `colors` in this repo contains a small dataset of different colors.
-Examine it.
-```
-$ cat colors
-```
-In this section, we will write some short python code to perform the count distinct and count group queries.
-
-### Part 1.a: Creating the files
-
-Create a file `count_distinct.py` with the following python code.
-```
-#!/usr/bin/python3
-import sys
-unique_lines = set()
-for line in sys.stdin:
-    unique_lines.add(line[:-1])
-print(len(unique_lines))
-```
-This program loops over the contents of stdin and adds each line to the `unique_lines` set.
-The `set` container automatically removes duplicates,
-and so the final `print` statement will print the total number of distinct lines.
-
-Try it out with the following commands
-```
-$ chmod a+x count_distinct.py
-$ cat colors | ./count_distinct.py
-```
-
-A similar python program can be used to perform the count group operation.
-All we have to do is replace the `set` with `Counter`.
-
-Create a file `count_group.py` with the following code,
-and give yourself execute permissions.
-```
-#!/usr/bin/python3
-import sys
-from collections import Counter
-unique_lines = Counter()
-for line in sys.stdin:
-    unique_lines[line[:-1]] += 1
-print(dict(unique_lines))
-```
-And test the program on the `colors` file.
-```
-$ cat colors | ./count_group.py
-```
-
-### Part 1.b: Analysis
-
-The [PythonWiki has a page on the runtime of python data structures](https://wiki.python.org/moin/TimeComplexity).
-The `set.add` method and the `Counter`
-
-The python `set` and `Counter` types are both implemented as 
--->
 
 ## Part 1: Count Distinct/Group in the Shell
 
@@ -101,6 +48,16 @@ We can complete our count distinct query by combining with `wc -l`:
 ```
 $ cat colors | sort | uniq | wc -l
 ```
+
+> **Note:**
+> Unfortunately, the `sort` command above is rather expensive.
+> Sorting requires $\Omega(n)$ memory and $\Omega(n\log n)$ compute,
+> and the `sort` command is the only commonly used shell command that does not use `O(1)` memory.
+> Nevertheless, the `sort` command is very efficient.
+> It uses the [external sort procedure](https://en.wikipedia.org/wiki/External_sorting),
+> which is something that you probably did not study in data structures.
+> External sort is very similar to merge sort, except that the intermediate steps are stored on the hard drive.
+> This allows `sort` to sort extremely large files even on systems with limited RAM.
 
 ### Part 1.b: Count Group
 
@@ -256,63 +213,6 @@ gnuplot> plot 'colors.dat' using 1:xtic(2) notitle
    0 +---------------------------------------------------------------------+
                 yellow         green          red          blue
 ```
-<!--
-```
-gnuplot> set terminal dumb
-gnuplot> plot 'country_code.plot_data'
-  1.1e+06 +----------------------------------------------------------------+
-          |      +      +       +      +      +      +       +      +      |
-    1e+06 |-+                             'country_code.plot_data'    A  +-|
-          |                                                                |
-   900000 |-+                                                            +-|
-   800000 |-+                                                            +-|
-          |                                                                |
-   700000 |-+                                                            +-|
-          |                                                                |
-   600000 |-+                                                            +-|
-          |                                                         A      |
-   500000 |-+                                                            +-|
-          |                                                                |
-   400000 |-+                                                            +-|
-          |                                                                |
-   300000 |-+                                                A           +-|
-   200000 |-+                                        A                   +-|
-          |                            A      A                            |
-   100000 |-+    A      A       A                                        +-|
-          |      +      +       +      +      +      +       +      +      |
-        0 +----------------------------------------------------------------+
-          0      1      2       3      4      5      6       7      8      9
-```
-We can make this plot a little bit nicer by adding some more formatting commands.
-```
-gnuplot> set style data histogram
-gnuplot> set style fill solid border -1
-gnuplot> plot 'country_code.plot_data' using 1:xtic(2) notitle
-  1.1e+06 +----------------------------------------------------------------+
-          |     +     +     +     +     +    +     +     +     +     ***   |
-    1e+06 |-+                                                        * * +-|
-          |                                                          * *   |
-   900000 |-+                                                        * * +-|
-   800000 |-+                                                        * * +-|
-          |                                                          * *   |
-   700000 |-+                                                        * * +-|
-          |                                                          * *   |
-   600000 |-+                                                        * * +-|
-          |                                                    ***   * *   |
-   500000 |-+                                                  * *   * * +-|
-          |                                                    * *   * *   |
-   400000 |-+                                                  * *   * * +-|
-          |                                                    * *   * *   |
-   300000 |-+                                            ***   * *   * * +-|
-   200000 |-+                                      ***   * *   * *   * * +-|
-          |                             ***  ***   * *   * *   * *   * *   |
-   100000 |-+   ***   ***   ***   ***   * *  * *   * *   * *   * *   * * +-|
-          |     * *   * *   * *   * *   * *  * *   * *   * *   * *   * *   |
-        0 +----------------------------------------------------------------+
-               SA    TR    AR    IN    ID   PH    GB    JP    BR    US
-```
-*j
--->
 The `set style` commands change the formatting to use a bar plot instead of a line plot.
 The `using 1:xtic(2)` tells gnuplot that the first column in the datafile should be the height of the bars,
 and the second column should be the label on the x-axis.
@@ -432,85 +332,8 @@ As before, you should verify that the output of the first `ls` and second `ls` d
 ## Part 2: Bigger Data
 
 Recall that the file `/data/Twitter dataset/geoTwitter20-01-01.zip` contains all of the geolocated tweets sent on January 1st 2020.
-Let's do an analysis to see how many distinct countries sent tweets on this day,
-and how many tweets were sent from each of these countries.
-
-First, filter the original json dataset into a list of just country codes.
-```
-$ time unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip | jq '.place.country_code' > country_code
-```
-This will take about 5 minutes or so.
-
-Then give yourself a high-level overview of your newly formed dataset.
-```
-$ du -hd0 country_code
-$ wc -l country_code
-$ head country_code
-```
-This dataset has the same number of data points (i.e. lines) as our original dataset,
-but because each data point contains much less information,
-it is much smaller and easier to work with.
-
-> **Exercise:**
-> 
-> Write a one line shell command for computing the count distinct query on the `country_code` file above.
-
-> **Exercise:**
-> 
-> Write a one line shell command for computing the count group query on the `country_code` file above.
-> Additionally, use the `tail` command to extract the 10 largest country/value combinations, and store the results in a file `country_code.plot_data`.
-<!--
-```
-$ cat country_code | sort | uniq -c | sort -n | tail > country_code.plot_data
-```
--->
-
-We will not see how to plot and visualize this data entirely in the shell.
-
-<!--
-We can now easily count the total number of distinct countries using either our python/shell combo or in pure shell.
-```
-$ cat country_code | ./count_distinct.py
-$ cat country_code | sort | uniq | wc -l
-```
-
-But how would we do the count group operation?
-The output of both of our code patterns above are hard to interpret.
-```
-$ cat country_code | ./count_group.py
-$ cat country_code | sort | uniq -c
-```
-
-Modify the `count_group.py` file so that it prints the output in sorted order.
-You can accomplish this by deleting the final line and replacing it with these three lines.
-```
-sorted_lines = sorted([(y, x) for (x, y) in unique_lines.items()])
-for x, y in sorted_lines:
-    print(x, y)
-```
-Run the command
-```
-$ cat country_code | sort | uniq -c | sort
-```
-Notice that the final output does not appear to be sorted.
-This is because by default, sort considers all lines as strings and sorts [ASCIIbeticallly](https://en.wiktionary.org/wiki/ASCIIbetical).
-In this ordering, the string `      9` comes after the string `   9968` instead of before it.
-In this case, that's not desired behavior, and we instead want to sort numerically.
-Passing the `-n` flag to `sort` accomplishes this.
-```
-$ cat country_code | sort | uniq -c | sort -n
-```
--->
-
-<!--
-## fancy sorting
-
-The `sort` command uses an [external sorting procedure](https://en.wikipedia.org/wiki/External_sorting).
-This is essentially merge sort, but 
--->
-
-####################
-Armed with this script, we can write a "simple" shell 1-liner that generates this plot from the original data.
+Let's do an analysis to see how many tweets were sent from each country on this day.
+We can easily do this with the following shell 1-liner:
 ```
 $ unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip | jq '.place.country_code' | sort | uniq -c | sort -n | tail -n10 | gnuplot -c boxplot.gp top10.png
 ```
@@ -526,36 +349,58 @@ $ unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip \
 | tail -n10 \
 | gnuplot -c boxplot.gp top10.png
 ```
-We can also combine this command with other standard shell syntax like for loops, the glob `*`, and background processing `&`.
-The following command generates 
+This command takes about 5 minutes to run.
+When it completes, upload the `top10.png` file to github.
+You should see it appear below.
+
+<img src=top10.png />
+
+## Part 3: A Simple MapReduce
+
+Recall from the [MapReduce homework](https://github.com/mikeizbicki/twitter_coronavirus) that MapReduce is a parallel procedure for large scale data analysis.
+In MapReduce, the "mappers" analyze small parts of the dataset in parallel, and then the "reducers" combine those results into a final result.
+In the homework, you used (or will use) a combination of python and the shell to perform these tasks.
+In this lab, we'll see how to perform MapReduce entirely in the shell.
+
+Our goal will be to generate a plot of how many tweets were sent from each country in the first 9 days of 2020.
+
+The mapper is fairly simple.
+It's just a count group query like we did in the previous section, but without plotting the results.
+The following shell code runs these mappers in parallel.
 ```
-$ for file in /data/Twitter\ dataset/geoTwitter20-*-01.zip; do 
-    unzip -p "$file" \
-    | jq '.place.country_code' \
-    | sort \
-    | uniq -c \
-    | sort -n \
-    | tail -n10 \
-    | gnuplot -c boxplot.gp $(basename "$file")-top10.png &
+$ for file in /data/Twitter\ dataset/geoTwitter20-01-0*.zip; do 
+unzip -p "$file" \
+| jq '.place.country_code' \
+| sort \
+| uniq -c \
+| sort -n \
+> map.$(basename "$file").dat &
 done
 ```
 
+The reducer is more complicated.
+The code below performs the reduce step by merging all of the  outputs from the map step into a single file.
+```
+cat map.geoTwitter20-01-01.zip.dat | while read line; do
+    country_code=$(echo "$line" | sed 's/[^a-zA-Z"]//g')
+    counts=$(cat map.* | grep "$country_code" | sed 's/[^0-9]//g')
+    sum=$(echo $counts | sed 's/ /+/g' | bc)
+    echo "$sum" "$country_code"
+done | sort -n > reduce
+```
+The while loop above reads each line from stdin (i.e. the output of the `cat` command) one at a time, storing it in the `line` variable.
+We then extract the country code, search all of the map files for that country code, and sum their totals together.
+The final output is re-sorted and stored in the file `reduce`.
+
+> **Exercise:**
+> Run the map and reduce procedures above.
+> Then create a plot of the results in the file `country_code_mapreduce.png`.
+> Upload your plot to github and ensure that it appears below.
+
+<img src=country_code_mapreduce.png />
+
 ## Submission
 
-
-**Problem 1:**
-Plot the number of 
-
-```
-$ 
-```
-
-<img src=plot1.png>
-
-**Problem 2:**
-
-```
-$ 
-```
-
-<img src=plot1.png>
+Upload the url of your forked github repo to sakai.
+In order to get full credit for the lab,
+you'll need to have all of the images uploaded to github.
