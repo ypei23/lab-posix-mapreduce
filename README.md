@@ -129,15 +129,15 @@ This error message references the [X Window System](https://en.wikipedia.org/wik
 which is a popular system for displaying graphics on Linux machines.
 One of its main advantages is that it allows windows created by remote machines (like the lambda server) to be displayed on your local machine.
 
-If your laptop is a linux machine, then it is easy to solve this problem by enabling "X forwarding" by [adding the `-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) to your ssh command.
+If your laptop is a linux machine, then you already have X Windows installed.
+You can solve this problem by enabling "X forwarding" with the [`-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) in your ssh command.
 
-> **Note:**
-> There exist open source X Windows implementations for every operations system.
-> [Xming](http://www.straightrunning.com/XmingNotes/) is the most popular one for Windows,
-> and [XQuartz](https://www.xquartz.org/) for Mac.
-> If you installed one of these on your laptop, then you would also be able to open windows on the lambda server and have them appear on your machine.
-> For this lab, however, you don't need to install this software if you don't want to.
-> We'll see alternative ways to get access to the plots.
+There exist open source X Windows implementations for every operations system.
+[Xming](http://www.straightrunning.com/XmingNotes/) is the most popular one for Windows,
+and [XQuartz](https://www.xquartz.org/) for Mac.
+If you installed one of these on your laptop, then you would also be able to open windows on the lambda server and have them appear on your machine.
+For this lab, however, you don't need to install this software if you don't want to.
+We'll see alternative ways to get access to the plots.
 
 > **Note:**
 > Many people think that X Windows gets its name from an allusion to Microsoft Windows graphical interface.
