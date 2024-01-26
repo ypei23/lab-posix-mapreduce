@@ -151,8 +151,8 @@ The easiest way to view the plots is to plot them directly in the terminal with 
 
 This is a good time to mention that the word *terminal* has a different meaning in the context of gnuplot.
 Recall that in most contexts, a terminal is the graphical program on your computer that use when interacting with the shell.
-In gnuplot, however, a *terminal* refers to the graphical engine used to render the plot.
-The default terminal renders the plot to the X Windows system.
+In gnuplot, however, a [*terminal* refers to the graphical engine used to render the plot](http://gnuplot.info/docs_5.5/Terminals.html).
+The [default terminal is called `qt`](http://gnuplot.info/docs_5.5/loc21993.html) because it uses the [QT library](https://www.qt.io/) to render the plot to the X Windows system.
 We can change the terminal to the [dumb terminal](http://www.gnuplot.info/docs_4.2/node367.html) to get the contents of our plot printed as ASCII art.
 
 The following commands should work for everyone.
