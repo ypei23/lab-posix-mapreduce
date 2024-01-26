@@ -416,7 +416,7 @@ cat map.geoTwitter20-01-01.zip.dat | while read line; do
 done | sort -n > reduce
 ```
 The while loop above reads each line from stdin (i.e. the output of the `cat` command) one at a time, storing it in the `line` variable.
-We then extract the country code, search all of the map files for that country code, and sum their totals together with the `bs` command.
+We then extract the country code, search all of the map files for that country code, and sum their totals together with the `bc` command (bc stands for basic calculator and is the main tool for doing math in the shell).
 The final output is re-sorted and stored in the file `reduce`.
 
 > **Exercise:**
