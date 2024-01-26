@@ -445,3 +445,6 @@ Plot the top 20 languages into the file `uslang-top20.png` and upload it to gith
 Upload the url of your forked github repo to sakai.
 In order to get full credit for the lab,
 you'll need to have all of the images uploaded to github.
+
+The lab is worth 4 points.
+Part 6 is worth 2 points, and the rest of the lab the other 2 points.
