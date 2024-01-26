@@ -129,6 +129,306 @@ Adding it to our command, we can now perform a nice count group query on `colors
 $ cat colors | sort | uniq -c | sort -n
 ```
 
+> **Exercise:**
+>
+> Use output redirection to store the output of the command above in a file called `colors.dat`.
+> We will use this file to experiment with plotting in the next section.
+
+## Part 2: Plotting with Gnuplot
+
+It is common to want to plot the results of a count group query as a bar chart.
+In this section, we'll see how to do that with gnuplot.
+Gnuplot is a popular program for generating charts on the terminal.
+It is [the recommended tool for generating plots for wikipedia](https://en.wikipedia.org/wiki/Wikipedia:How_to_create_charts_for_Wikipedia_articles#Plotting),
+and [most plots on wikipedia were generated with gnuplot](https://commons.wikimedia.org/wiki/Category:Gnuplot_diagrams).
+
+> **Note:**
+> The [GNU project](https://www.gnu.org/) is an open source rewrite of the Unix operating system,
+> and all of the terminal commands we have used so far are part of GNU.
+> [Gnuplot, however, is not affiliated with the GNU project](http://www.gnuplot.info/faq/#x1-120001.7).
+> Therefore, even though [GNU is pronounced with a hard G](https://www.gnu.org/gnu/pronunciation.html),
+> gnuplot is often pronounced as "newplot" using the standard English pronunciation of gnu.
+> [The authors have a detailed FAQ answer about the origin of the name.](http://www.gnuplot.info/faq/#x1-70001.2):
+
+### Part 2.a: A First Attempt at Plotting
+
+Start the gnuplot program.
+```
+$ gnuplot
+```
+You should get a large welcome message printed followed by a new prompt `gnuplot>` indicating that you are now typing gnuplot commands instead of shell commands.
+
+The simplest command is the `plot` command,
+which just takes as input a filename of data to plot.
+```
+gnuplot> plot 'colors.dat'
+```
+If your laptop is a linux machine, then a plot should be displayed on your screen.
+If you're running a Mac or Windows machine, however, running that command will give you an error similar to
+```
+qt.qpa.screen: QXcbConnection: Could not connect to display 
+Could not connect to any X display.
+```
+(If you got this error on a linux system, you can get rid of it by [adding the `-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) to your ssh command.)
+
+This error message references the [X Window System](https://en.wikipedia.org/wiki/X_Window_System),
+which is a popular system for displaying graphics on Linux machines.
+One of its main advantages is that it allows windows created by remote machines (like the lambda server) to be displayed on your local machine.
+
+> **Note:**
+> The program that lets the lambda server create windows on your machine is called an X server.
+> There exist open source X server implementations for every operations system.
+> [Xming](http://www.straightrunning.com/XmingNotes/) is the most popular one for Windows,
+> and [XQuartz](https://www.xquartz.org/) for Mac.
+> For this lab, however, you don't need to install this software if you don't want to.
+> We'll see alternative ways to get access to the plots.
+
+> **Note:**
+> Many people think that X Windows gets its name from an allusion to Microsoft Windows graphical interface.
+> But the opposite is closer to the truth.
+> The first version of X Windows was released in 1984,
+> and the first version of Microsoft Windows was released on 1985.
+
+### Part 2.b: Plotting with ASCII Art
+
+The easiest way to view the plots is to plot them directly in the terminal with ASCII art.
+
+This is a good time to mention that the word *terminal* has a different meaning in the context of gnuplot.
+Recall that in most contexts, a terminal is the graphical program on your computer that use when interacting with the shell.
+In gnuplot, however, a *terminal* refers to the graphical engine used to render the plot.
+The default terminal renders the plot to the X Windows system.
+We can change the terminal to the [dumb terminal](http://www.gnuplot.info/docs_4.2/node367.html) to get the contents of our plot printed as ASCII art.
+
+The following commands should work for everyone.
+```
+gnuplot> set terminal dumb
+gnuplot> plot 'colors.dat'
+  12 +---------------------------------------------------------------------+
+     |                      +                       +                      |
+     |                                                                     |
+  10 |-+                                                                 +-|
+     |                                                                     |
+     |                                                                     |
+     |                                                                     |
+   8 |-+                                                                 +-|
+     |                                                                     |
+     |                                                                     |
+   6 |-+                                                                 +-|
+     |                                                                     |
+     |                                                                     |
+   4 |-+                                            A                    +-|
+     |                                                                     |
+     |                      A                                              |
+     |                                                                     |
+   2 |-+                                                                 +-|
+     |                                                                     |
+     |                      +                       +                      |
+   0 +---------------------------------------------------------------------+
+  yellow                  green                    red                   blue
+```
+This plot is hard to read, and the values for `yellow` and `blue` aren't even being displayed because they overlap with the axes.
+We can make this plot a little bit nicer by adding some more formatting commands.
+```
+gnuplot> set style data histogram
+gnuplot> set style fill solid border -1
+gnuplot> plot 'colors.dat' using 1:xtic(2) notitle
+```
+  12 +---------------------------------------------------------------------+
+     |             +             +             +             +             |
+     |                                                       ******        |
+  10 |-+                                                     *    *      +-|
+     |                                                       *    *        |
+     |                                                       *    *        |
+     |                                                       *    *        |
+   8 |-+                                                     *    *      +-|
+     |                                                       *    *        |
+     |                                                       *    *        |
+   6 |-+                                                     *    *      +-|
+     |                                                       *    *        |
+     |                                                       *    *        |
+   4 |-+                                       ******        *    *      +-|
+     |                                         *    *        *    *        |
+     |                           ******        *    *        *    *        |
+     |                           *    *        *    *        *    *        |
+   2 |-+                         *    *        *    *        *    *      +-|
+     |             ******        *    *        *    *        *    *        |
+     |             *    *        *    *        *    *        *    *        |
+   0 +---------------------------------------------------------------------+
+                yellow         green          red          blue
+```
+<!--
+```
+gnuplot> set terminal dumb
+gnuplot> plot 'country_code.plot_data'
+  1.1e+06 +----------------------------------------------------------------+
+          |      +      +       +      +      +      +       +      +      |
+    1e+06 |-+                             'country_code.plot_data'    A  +-|
+          |                                                                |
+   900000 |-+                                                            +-|
+   800000 |-+                                                            +-|
+          |                                                                |
+   700000 |-+                                                            +-|
+          |                                                                |
+   600000 |-+                                                            +-|
+          |                                                         A      |
+   500000 |-+                                                            +-|
+          |                                                                |
+   400000 |-+                                                            +-|
+          |                                                                |
+   300000 |-+                                                A           +-|
+   200000 |-+                                        A                   +-|
+          |                            A      A                            |
+   100000 |-+    A      A       A                                        +-|
+          |      +      +       +      +      +      +       +      +      |
+        0 +----------------------------------------------------------------+
+          0      1      2       3      4      5      6       7      8      9
+```
+We can make this plot a little bit nicer by adding some more formatting commands.
+```
+gnuplot> set style data histogram
+gnuplot> set style fill solid border -1
+gnuplot> plot 'country_code.plot_data' using 1:xtic(2) notitle
+  1.1e+06 +----------------------------------------------------------------+
+          |     +     +     +     +     +    +     +     +     +     ***   |
+    1e+06 |-+                                                        * * +-|
+          |                                                          * *   |
+   900000 |-+                                                        * * +-|
+   800000 |-+                                                        * * +-|
+          |                                                          * *   |
+   700000 |-+                                                        * * +-|
+          |                                                          * *   |
+   600000 |-+                                                        * * +-|
+          |                                                    ***   * *   |
+   500000 |-+                                                  * *   * * +-|
+          |                                                    * *   * *   |
+   400000 |-+                                                  * *   * * +-|
+          |                                                    * *   * *   |
+   300000 |-+                                            ***   * *   * * +-|
+   200000 |-+                                      ***   * *   * *   * * +-|
+          |                             ***  ***   * *   * *   * *   * *   |
+   100000 |-+   ***   ***   ***   ***   * *  * *   * *   * *   * *   * * +-|
+          |     * *   * *   * *   * *   * *  * *   * *   * *   * *   * *   |
+        0 +----------------------------------------------------------------+
+               SA    TR    AR    IN    ID   PH    GB    JP    BR    US
+```
+*j
+-->
+The `set style` commands change the formatting to use a bar plot instead of a line plot.
+The `using 1:xtic(2)` tells gnuplot that the first column in the datafile should be the height of the bars,
+and the second column should be the label on the x-axis.
+Finally, the `notitle` command removes the legend.
+
+### Part 2.c: Generating PNG Files
+
+This second plot is a little bit nicer,
+but it's still not very good since the results are limited to ASCII art.
+To generate a proper plot, we can use the `png` terminal.
+
+The following commands will replot the graph above and store it in the file `colors.png`.
+(There is no need to retype the `set style` commands, as those will remain in effect.)
+```
+gnuplot> set terminal png size 800,400
+gnuplot> set output 'colors.png'
+gnuplot> plot 'country_code.plot_data' using 1:xtic(2) notitle
+```
+The `plot` command above should have no output.
+Leave the gnuplot shell by typing `^D` and run `ls`.
+You should see the file `colors.png` was created in your lab folder.
+
+> **Note:**
+> `png` is [officially pronounced like "ping"](https://en.wikipedia.org/wiki/PNG),
+> and so `colors.png` is pronounced as "top ten dot ping".
+
+### Part 2.d: Viewing the Image
+
+Unfortunately, there's no way to view png files inside the terminal.
+To view the `colors.png` file, you will need to transfer it to you computer.
+
+On Linux machines, this is once again trivial.
+The `sshfs` program lets you [mount](https://unix.stackexchange.com/questions/3192/what-is-meant-by-mounting-a-device-in-linux) the lambda server's filesystem onto your own filesystem.
+For example, if I run the following command on my laptop:
+```
+$ sshfs -p 5055 csci143example@lambda.compute.cmc.edu:/home/csci143example ~/lambda
+```
+Then the folder `~/lambda` on my laptop will contain all of the contents of my home folder `/home/csci143example` on the lambda server.
+I can then navigate to that folder using my standard file explorer tools to view the file.
+
+> **Note:**
+> There exist sshfs implementations for [Mac](https://osxfuse.github.io) and [Windows](https://github.com/winfsp/sshfs-win).
+> You are not required to download and install them,
+> but they may make working on the lambda server easier for you.
+
+If you don't have `sshfs` installed, then the next best option is to use github to transfer the file.
+You can upload the file to github with the following commands.
+```
+$ git add colors.png
+$ git commit -m 'added colors.png'
+$ git push origin master
+```
+If these commands worked successfully,
+then the image below should work.
+
+<img src=colors.png />
+
+If not, ensure that you're looking at your forked repo and not my repo.
+
+Don't move on to the next steps until you're successfully able to view your image.
+
+## Part 3: Writing Gnuplot Scripts
+
+Working with gnuplot through the terminal interface is possible,
+but it's much more convenient to write scripts that generate plots without manual intervention.
+We will now see how to write and use these scripts.
+
+Create a file `boxplot.gp` with the following contents.
+```
+set terminal png size 800,400
+set output 'top10.png'
+set style data histogram
+set style fill solid border -1
+plot 'country_code.plot_data' using 1:xtic(2) notitle
+```
+Notice that these are just the commands that we previously typed directly into the gnuplot terminal.
+We can now run all of these commands at once by passing the `-c boxplot.gp` arguments to gnuplot.
+
+First, delete the `colors.png` file.
+```
+$ rm colors.png
+$ ls
+```
+Then run the script and verify that it worked by seeing that it recreated the file.
+```
+$ gnuplot -c boxplot.gp
+$ ls
+```
+
+Just like python functions are more useful when they take parameters that adjust how they work,
+scripts are also more useful when they take input.
+We will modify the script so that it can be used with the pipe.
+This will require two changes:
+
+1. Replace the hard coded output filename `'colors.png'` with the variable `ARG1`.
+    Gnuplot will substitute the first command line argument of the script with this value.
+1. Replace the hard coded input filename `'colors.dat'` with the special filename `'/dev/stdin'`.
+    This will allow us to get our data from the pipe.
+
+After making these changes, the final `boxplot.gp` script should look like:
+```
+set terminal png size 800,400
+set output ARG1
+set style data histogram
+set style fill solid border -1
+plot '/dev/stdin' using 1:xtic(2) notitle
+```
+To test this new script, we will recreate the original `colors.png` file.
+```
+$ rm colors.png
+$ ls
+$ cat 'colors.dat' | gnuplot -c boxplot.gp colors.png
+$ ls
+```
+As before, you should verify that the output of the first `ls` and second `ls` differ only by the newly created `top10.png` file.
+
 ## Part 2: Bigger Data
 
 Recall that the file `/data/Twitter dataset/geoTwitter20-01-01.zip` contains all of the geolocated tweets sent on January 1st 2020.
@@ -209,235 +509,7 @@ The `sort` command uses an [external sorting procedure](https://en.wikipedia.org
 This is essentially merge sort, but 
 -->
 
-## Plotting with Gnuplot
-
-Gnuplot is a popular program for generating charts on the terminal.
-It is [the recommended tool for generating plots for wikipedia](https://en.wikipedia.org/wiki/Wikipedia:How_to_create_charts_for_Wikipedia_articles#Plotting),
-and [most plots on wikipedia were generated with gnuplot](https://commons.wikimedia.org/wiki/Category:Gnuplot_diagrams).
-
-> **Note:**
->
-> The [GNU project](https://www.gnu.org/) is an open source rewrite of the Unix operating system,
-> and all of the terminal commands we have used so far are part of GNU.
-> [Gnuplot, however, is not affiliated with the GNU project](http://www.gnuplot.info/faq/#x1-120001.7).
-> Therefore, even though [GNU is pronounced with a hard G](https://www.gnu.org/gnu/pronunciation.html),
-> gnuplot is often pronounced as "newplot" using the standard English pronunciation of gnu.
-> [The authors have a detailed FAQ answer about the origin of the name.](http://www.gnuplot.info/faq/#x1-70001.2):
-
-Start the gnuplot program.
-```
-$ gnuplot
-```
-You should get a large welcome message printed followed by a new prompt `gnuplot>` indicating that you are now typing gnuplot commands instead of shell commands.
-
-The simplest command is the `plot` command,
-which just takes as input a filename of data to plot.
-```
-gnuplot> plot 'country_code.plot_data'
-```
-If your laptop is a linux machine, then a plot should be displayed on your screen.
-If you're running a Mac or Windows machine, however, running that command will give you an error similar to
-```
-qt.qpa.screen: QXcbConnection: Could not connect to display 
-Could not connect to any X display.
-```
-(If you got this error on a linux system, you can get rid of it by [adding the `-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) to your ssh command.)
-
-This error message references the [X Window System](https://en.wikipedia.org/wiki/X_Window_System),
-which is a popular system for displaying graphics on Unix machines.
-One of its main advantages is that it allows windows created by remote machines (like the lambda server) to be displayed on your local machine.
-
-> **Historical Note:**
->
-> Many people think that X Windows gets its name from an allusion to Microsoft Windows graphical interface.
-> But the opposite is closer to the truth.
-> The first version of X Windows was released in 1984,
-> and the first version of Microsoft Windows was released on 1985.
-
-In order for the gnuplot `plot` command to display a window on a Mac or Windows machine, you will need to download software called an "X server".
-[Xming](http://www.straightrunning.com/XmingNotes/) is the most popular one for Windows,
-and [XQuartz](https://www.xquartz.org/) for Mac.
-For this lab, however, you don't need to install this software if you don't want to.
-We'll see alternative ways to get access to the plots.
-
-The first alternative is to plot directly in the terminal window using ASCII art.
-This is a good time to mention that the word *terminal* has a different meaning in the context of gnuplot.
-Recall that in most contexts, a terminal is the graphical program on your computer that use when interacting with the shell.
-In gnuplot, however, a *terminal* refers to the graphical engine used to render the plot.
-The default terminal renders the plot to the X Windows system.
-We can change the terminal to the [dumb terminal](http://www.gnuplot.info/docs_4.2/node367.html) to get the contents of our plot printed as ASCII art.
-
-The following commands should work for everyone.
-```
-gnuplot> set terminal dumb
-gnuplot> plot 'country_code.plot_data'
-  1.1e+06 +----------------------------------------------------------------+
-          |      +      +       +      +      +      +       +      +      |
-    1e+06 |-+                             'country_code.plot_data'    A  +-|
-          |                                                                |
-   900000 |-+                                                            +-|
-   800000 |-+                                                            +-|
-          |                                                                |
-   700000 |-+                                                            +-|
-          |                                                                |
-   600000 |-+                                                            +-|
-          |                                                         A      |
-   500000 |-+                                                            +-|
-          |                                                                |
-   400000 |-+                                                            +-|
-          |                                                                |
-   300000 |-+                                                A           +-|
-   200000 |-+                                        A                   +-|
-          |                            A      A                            |
-   100000 |-+    A      A       A                                        +-|
-          |      +      +       +      +      +      +       +      +      |
-        0 +----------------------------------------------------------------+
-          0      1      2       3      4      5      6       7      8      9
-```
-We can make this plot a little bit nicer by adding some more formatting commands.
-```
-gnuplot> set style data histogram
-gnuplot> set style fill solid border -1
-gnuplot> plot 'country_code.plot_data' using 1:xtic(2) notitle
-  1.1e+06 +----------------------------------------------------------------+
-          |     +     +     +     +     +    +     +     +     +     ***   |
-    1e+06 |-+                                                        * * +-|
-          |                                                          * *   |
-   900000 |-+                                                        * * +-|
-   800000 |-+                                                        * * +-|
-          |                                                          * *   |
-   700000 |-+                                                        * * +-|
-          |                                                          * *   |
-   600000 |-+                                                        * * +-|
-          |                                                    ***   * *   |
-   500000 |-+                                                  * *   * * +-|
-          |                                                    * *   * *   |
-   400000 |-+                                                  * *   * * +-|
-          |                                                    * *   * *   |
-   300000 |-+                                            ***   * *   * * +-|
-   200000 |-+                                      ***   * *   * *   * * +-|
-          |                             ***  ***   * *   * *   * *   * *   |
-   100000 |-+   ***   ***   ***   ***   * *  * *   * *   * *   * *   * * +-|
-          |     * *   * *   * *   * *   * *  * *   * *   * *   * *   * *   |
-        0 +----------------------------------------------------------------+
-               SA    TR    AR    IN    ID   PH    GB    JP    BR    US
-```
-The `set style` commands change the formatting to use a bar plot instead of a line plot.
-The `using 1:xtic(2)` tells gnuplot that the first column in the datafile should be the height of the bars,
-and the second column should be the label on the x-axis.
-Finally, the `notitle` command removes the legend.
-
-This second plot is a little bit nicer,
-but it's still not very good since the results are limited to ASCII art.
-To generate a proper plot, we can use the `png` terminal.
-
-The following commands will replot the graph above and store it in the file `top10.png`.
-(There is no need to retype the `set style` commands, as those will remain in effect.)
-```
-gnuplot> set terminal png size 800,400
-gnuplot> set output 'top10.png'
-gnuplot> plot 'country_code.plot_data' using 1:xtic(2) notitle
-```
-The `plot` command above should have no output.
-Leave the gnuplot shell by typing `^D` and run `ls`.
-You should see the file `top10.png` was created in your lab folder.
-
-> **Note:**
-> 
-> `png` is [officially pronounced like "ping"](https://en.wikipedia.org/wiki/PNG),
-> and so `top10.png` is pronounced as "top ten dot ping".
-
-### Part : Viewing the Image
-
-Unfortunately, there's no way to view graphics inside the terminal.
-To view the `top10.png` file, you will need to transfer it to you computer.
-
-On Linux machines, this is trivial.
-The `sshfs` program lets you [mount](https://unix.stackexchange.com/questions/3192/what-is-meant-by-mounting-a-device-in-linux) the lambda server's filesystem onto your own filesystem.
-For example, if I run the following command on my laptop:
-```
-$ sshfs -p 5055 csci143example@lambda.compute.cmc.edu:/home/csci143example ~/lambda
-```
-Then the folder `~/lambda` on my laptop will contain all of the contents of my home folder `/home/csci143example` on the lambda server.
-I can then navigate to that folder using my standard file explorer tools to view the file.
-
-> **Note:**
->
-> There exist sshfs implementations for [Mac](https://osxfuse.github.io) and [Windows](https://github.com/winfsp/sshfs-win).
-> You are not required to download and install them,
-> but they may make working on the lambda server easier for you.
-
-If you don't have `sshfs` installed, then the next best option is to use github to transfer the file.
-You can upload the file to github with the following commands.
-```
-$ git add top10.png
-$ git commit -m 'added top10.png'
-$ git push origin master
-```
-If these commands worked successfully,
-then the image below should work.
-
-<img src=top10.png />
-
-If not, ensure that you're looking at your forked repo and not my repo.
-
-Don't move on to the next steps until you're successfully able to view your image.
-
-### Part : Writing a Gnuplot Script
-
-Working with gnuplot through the terminal interface is possible,
-but it's much more convenient to write scripts that generate plots without manual intervention.
-We will now see how to write and use these scripts.
-
-Create a file `boxplot.gp` with the following contents.
-```
-set terminal png size 800,400
-set output 'top10.png'
-set style data histogram
-set style fill solid border -1
-plot 'country_code.plot_data' using 1:xtic(2) notitle
-```
-Notice that these are just the commands that we previously typed directly into the gnuplot terminal.
-We can now run all of these commands at once by passing the `-c boxplot.gp` arguments to gnuplot.
-
-First, delete the `top10.png` file.
-```
-$ rm top10.png
-$ ls
-```
-Then run the script and verify that it worked by seeing that it recreated the file.
-```
-$ gnuplot -c boxplot.gp
-$ ls
-```
-
-Just like python functions are more useful when they take parameters that adjust how they work,
-scripts are also more useful when they take input.
-We will modify the script so that it can be used with the pipe.
-This will require two changes:
-
-1. Replace the hard coded output filename `'top10.png'` with the variable `ARG1`.
-    Gnuplot will substitute the first command line argument of the script with this value.
-1. Replace the hard coded input filename `'country_code.plot_data'` with the special filename `'/dev/stdin'`.
-    This will allow us to get our data from the pipe.
-
-After making these changes, the final `boxplot.gp` script should look like:
-```
-set terminal png size 800,400
-set output ARG1
-set style data histogram
-set style fill solid border -1
-plot '/dev/stdin' using 1:xtic(2) notitle
-```
-To test this new script, we will recreate the original `top10.png` file.
-```
-$ rm top10.png
-$ ls
-$ cat 'country_code.plot_data' | gnuplot -c boxplot.gp top10.png
-$ ls
-```
-As before, you should verify that the output of the first `ls` and second `ls` differ only by the newly created `top10.png` file.
-
+####################
 Armed with this script, we can write a "simple" shell 1-liner that generates this plot from the original data.
 ```
 $ unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip | jq '.place.country_code' | sort | uniq -c | sort -n | tail -n10 | gnuplot -c boxplot.gp top10.png
