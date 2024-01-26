@@ -1,26 +1,31 @@
+# Lab: Gnuplot
 
-
-Recall that in last week's lab, we saw how to use python and SQL to perform the "count distinct" and "group by" queries.
+Recall that in last week's lab, we saw how to use python and SQL to perform the *count distinct* and *count group* queries.
 We had two main takeaways:
+
 1. Python's pandas library requires $\Omega(n)$ memory,
     and so it is not suitable for large datasets.
 1. SQLite requires only $O(1)$ memory,
      and so is suitable for large datasets.
-We will not see how to run those same queries in the shell.
+
+In this lab, we will not see how to run those same queries in the shell.
+We will then see how to make bar charts out of those queries using the terminal program gnuplot.
 
 ## Part 0: Setup
 
-Fork this repo.
-$ git clone
+Fork this repo, clone your fork onto the lambda server, and enter the repo directory.
+It will be important later that you are working on your forked repo because you'll be uploading images to the repo,
+and you don't have permission to do that to this repo.
 
+<!--
 ## Part 1: Combining Python with the shell
 
-The files `colors` contains a small dataset of different colors.
+The file `colors` in this repo contains a small dataset of different colors.
 Examine it.
 ```
 $ cat colors
 ```
-In this section, we will write some short python code to perform out count distinct and count groupby queries.
+In this section, we will write some short python code to perform the count distinct and count group queries.
 
 ### Part 1.a: Creating the files
 
@@ -43,10 +48,10 @@ $ chmod a+x count_distinct.py
 $ cat colors | ./count_distinct.py
 ```
 
-A similar python program can be used to perform the count group by operation.
+A similar python program can be used to perform the count group operation.
 All we have to do is replace the `set` with `Counter`.
 
-Create a file `count_groupby.py` with the following code,
+Create a file `count_group.py` with the following code,
 and give yourself execute permissions.
 ```
 #!/usr/bin/python3
@@ -59,7 +64,7 @@ print(dict(unique_lines))
 ```
 And test the program on the `colors` file.
 ```
-$ cat colors | ./count_groupby.py
+$ cat colors | ./count_group.py
 ```
 
 ### Part 1.b: Analysis
@@ -68,36 +73,63 @@ The [PythonWiki has a page on the runtime of python data structures](https://wik
 The `set.add` method and the `Counter`
 
 The python `set` and `Counter` types are both implemented as 
+-->
 
-## Part 2: Pure POSIX, No Python
+## Part 1: Count Distinct/Group in the Shell
 
-`uniq` and `sort` commands are included in every POSIX compliant shell.
-They are commonly used together to perform "count distinct" and "group by" style queries,
-and have different runtime characteristics than the python implementations above.
+The `uniq` and `sort` commands are included in every POSIX compliant operating system.
+They are commonly used together to perform the count distinct and count group operations.
 
-The `uniq` command filters its input to remove any line that is the same as its previous line.
-To see an example, compare the output of the following two commands.
+### Part 1.a: Count Distinct
+
+The `uniq` command (pronounced like "unique") filters its input to remove any line that is the same as its previous line.
+We'll use the `colors` file included in the repo as an example.
+Compare the output of the following two commands.
 ```
 $ cat colors
 $ cat colors | uniq
 ```
-Notice that every line in the output of `uniq` is not necessarily "unique".
+Notice that every line in the output of `uniq` is not necessarily "unique",
+but no two neighboring lines are the same.
 
 One common strategy for outputting only the distinct lines is to first sort the input.
 ```
 $ cat colors | sort | uniq
 ```
 Now notice that there are no duplicate colors in the output.
-We can complete our count distinct query by counting the total number of lines.
+We can complete our count distinct query by combining with `wc -l`:
 ```
 $ cat colors | sort | uniq | wc -l
 ```
-And we can complete our count groupby query by adding the `-c` flag to the `uniq` command.
+
+### Part 1.b: Count Group
+
+The count group query is almost as easy to do.
+The `uniq` program with the `-c` flag counts the total number of duplicated rows,
+and so adding this flag performs the count group query.
 ```
 $ cat colors | sort | uniq -c
 ```
+Notice, however, that the output above is not sorted by the number of occurrences.
+But sorted output would be easier to read, so let's figure out how to get it.
 
-### Bigger Data
+You might think that another call to `sort` would do the trick.
+Try it:
+```
+$ cat colors | sort | uniq -c | sort
+```
+Technically, this output is now sorted [ASCIIbeticallly](https://en.wiktionary.org/wiki/ASCIIbetical).
+(The `1` character comes before ` ` in ASCII, and so `11` comes before ` 1`.)
+But this isn't what we really wanted.
+We want to sort on the numerical values of the numbers in our table,
+and not their ASCII values.
+`sort` has a flag `-n` for this purpose.
+Adding it to our command, we can now perform a nice count group query on `colors` with the command
+```
+$ cat colors | sort | uniq -c | sort -n
+```
+
+## Part 2: Bigger Data
 
 Recall that the file `/data/Twitter dataset/geoTwitter20-01-01.zip` contains all of the geolocated tweets sent on January 1st 2020.
 Let's do an analysis to see how many distinct countries sent tweets on this day,
@@ -125,14 +157,14 @@ $ cat country_code | ./count_distinct.py
 $ cat country_code | sort | uniq | wc -l
 ```
 
-But how would we do the count groupby operation?
+But how would we do the count group operation?
 The output of both of our code patterns above are hard to interpret.
 ```
-$ cat country_code | ./count_groupby.py
+$ cat country_code | ./count_group.py
 $ cat country_code | sort | uniq -c
 ```
 
-Modify the `count_groupby.py` file so that it prints the output in sorted order.
+Modify the `count_group.py` file so that it prints the output in sorted order.
 You can accomplish this by deleting the final line and replacing it with these three lines.
 ```
 sorted_lines = sorted([(y, x) for (x, y) in unique_lines.items()])
@@ -176,6 +208,9 @@ and [most plots on wikipedia were generated with gnuplot](https://commons.wikime
 > [Gnuplot, however, is not affiliated with the GNU project](http://www.gnuplot.info/faq/#x1-120001.7).
 > Therefore, even though [GNU is pronounced with a hard G](https://www.gnu.org/gnu/pronunciation.html),
 > gnuplot is often pronounced as "newplot" using the standard English pronunciation of gnu.
+>
+> [One of the authors states](http://www.gnuplot.info/faq/#x1-70001.2):
+> > The name "gnuplot" was actually a compromise. I wanted to call it "llamaplot" and Colin wanted to call it "nplot." We agreed that "newplot" was acceptable but, we then discovered that there was an absolutely ghastly pascal program of that name that the Computer Science Dept. occasionally used. I decided that "gnuplot" would make a nice pun and after a fashion Colin agreed.
 
 Start the gnuplot program.
 ```
@@ -188,16 +223,17 @@ which just takes as input a filename of data to plot.
 ```
 gnuplot> plot 'country_code.plot_data'
 ```
-If you're laptop is a linux machine, then a plot should be displayed on your laptop.
+If your laptop is a linux machine, then a plot should be displayed on your screen.
 If you're running a Mac or Windows machine, however, running that command will give you an error similar to
 ```
 qt.qpa.screen: QXcbConnection: Could not connect to display 
 Could not connect to any X display.
 ```
-(If you got this error on a linux system, you need to reconnect to the lambda server [adding the `-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) to your ssh command.)
+(If you got this error on a linux system, you can get rid of it by [adding the `-XY` flags](https://explainshell.com/explain?cmd=ssh+-X+-Y+user%40host) to your ssh command.)
 
-The [X Window System](https://en.wikipedia.org/wiki/X_Window_System) is the system used on most Linux machines to display windows to the screen.
-It is more advanced than the graphical systems used by Microsoft Windows and Mac because it is designed to allow Windows created by remote machines (for example via an ssh connection).
+This error message references the [X Window System](https://en.wikipedia.org/wiki/X_Window_System),
+which is a popular system for displaying graphics on Unix machines.
+One of its main advantages is that it allows windows created by remote machines (like the lambda server) to be displayed on your local machine.
 
 > **Historical Note:**
 >
@@ -206,18 +242,20 @@ It is more advanced than the graphical systems used by Microsoft Windows and Mac
 > The first version of X Windows was released in 1984,
 > and the first version of Microsoft Windows was released on 1985.
 
-In order for the gnuplot command to display a window on a Mac (or Linux) machine, you will need to download an X server.
+In order for the gnuplot `plot` command to display a window on a Mac or Windows machine, you will need to download software called an "X server".
 [Xming](http://www.straightrunning.com/XmingNotes/) is the most popular one for Windows,
 and [XQuartz](https://www.xquartz.org/) for Mac.
 For this lab, however, you don't need to install this software if you don't want to.
 We'll see alternative ways to get access to the plots.
 
-The first alternative is to plot directly in the terminal window.
+The first alternative is to plot directly in the terminal window using ASCII art.
 This is a good time to mention that the word *terminal* has a different meaning in the context of gnuplot.
 Recall that in most contexts, a terminal is the graphical program on your computer that use when interacting with the shell.
 In gnuplot, however, a *terminal* refers to the graphical engine used to render the plot.
 The default terminal renders the plot to the X Windows system.
 We can change the terminal to the [dumb terminal](http://www.gnuplot.info/docs_4.2/node367.html) to get the contents of our plot printed as ASCII art.
+
+The following commands should work for everyone.
 ```
 gnuplot> set terminal dumb
 gnuplot> plot 'country_code.plot_data'
@@ -244,7 +282,7 @@ gnuplot> plot 'country_code.plot_data'
         0 +----------------------------------------------------------------+
           0      1      2       3      4      5      6       7      8      9
 ```
-We can make this a little bit nicer by adding some more formatting commands:
+We can make this plot a little bit nicer by adding some more formatting commands.
 ```
 gnuplot> set style data histogram
 gnuplot> set style fill solid border -1
@@ -282,13 +320,13 @@ but it's still not very good since the results are limited to ASCII art.
 To generate a proper plot, we can use the `png` terminal.
 
 The following commands will replot the graph above and store it in the file `top10.png`.
-(There is no need to recall the `set style` commands, as those will remain in effect.)
+(There is no need to retype the `set style` commands, as those will remain in effect.)
 ```
 gnuplot> set terminal png size 800,400
 gnuplot> set output 'top10.png'
 gnuplot> plot 'country_code.plot_data' using 1:xtic(2) notitle
 ```
-The plot command above should have no output.
+The `plot` command above should have no output.
 Leave the gnuplot shell by typing `^D` and run `ls`.
 You should see the file `top10.png` was created in your lab folder.
 
@@ -302,7 +340,7 @@ You should see the file `top10.png` was created in your lab folder.
 Unfortunately, there's no way to view graphics inside the terminal.
 To view the `top10.png` file, you will need to transfer it to you computer.
 
-On linux machines, this is trivial.
+On Linux machines, this is trivial.
 The `sshfs` program lets you [mount](https://unix.stackexchange.com/questions/3192/what-is-meant-by-mounting-a-device-in-linux) the lambda server's filesystem onto your own filesystem.
 For example, if I run the following command on my laptop:
 ```
@@ -318,20 +356,20 @@ I can then navigate to that folder using my standard file explorer tools to view
 > but they may make working on the lambda server easier for you.
 
 If you don't have `sshfs` installed, then the next best option is to use github to transfer the file.
-Running the commands
+You can upload the file to github with the following commands.
 ```
 $ git add top10.png
 $ git commit -m 'added top10.png'
 $ git push origin master
 ```
-will add the `top10.png` file to your forked repo on github,
-and you can view the file there.
-If you do that successfully,
-then the folling image should display without an error.
+If these commands worked successfully,
+then the image below should work.
 
 <img src=top10.png />
 
-Don't move on to the next steps until you're successfully able to view your image (either through sshfs or github).
+If not, ensure that you're looking at your forked repo and not my repo.
+
+Don't move on to the next steps until you're successfully able to view your image.
 
 ### Part : Writing a Gnuplot Script
 
@@ -365,6 +403,7 @@ Just like python functions are more useful when they take parameters that adjust
 scripts are also more useful when they take input.
 We will modify the script so that it can be used with the pipe.
 This will require two changes:
+
 1. Replace the hard coded output filename `'top10.png'` with the variable `ARG1`.
     Gnuplot will substitute the first command line argument of the script with this value.
 1. Replace the hard coded input filename `'country_code.plot_data'` with the special filename `'/dev/stdin'`.
@@ -386,9 +425,14 @@ $ cat 'country_code.plot_data' | gnuplot -c boxplot.gp top10.png
 $ ls
 ```
 As before, you should verify that the output of the first `ls` and second `ls` differ only by the newly created `top10.png` file.
+
+Armed with this script, we can write a "simple" shell 1-liner that generates this plot from the original data.
 ```
 $ unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip | jq '.place.country_code' | sort | uniq -c | sort -n | tail -n10 | gnuplot -c boxplot.gp top10.png
 ```
+For long commands like this, it is common to break them up onto multiple lines.
+In the shell (and most programming environments), any line that ends with a backslash `\` is treated as continuing on to the next line.
+Thus the following more readable shell command is 100% equivalent to the shell command above.
 ```
 $ unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip \
 | jq '.place.country_code' \
@@ -397,6 +441,19 @@ $ unzip -p /data/Twitter\ dataset/geoTwitter20-01-01.zip \
 | sort -n \
 | tail -n10 \
 | gnuplot -c boxplot.gp top10.png
+```
+We can also combine this command with other standard shell syntax like for loops, the glob `*`, and background processing `&`.
+The following command generates 
+```
+$ for file in /data/Twitter\ dataset/geoTwitter20-*-01.zip; do 
+    unzip -p "$file" \
+    | jq '.place.country_code' \
+    | sort \
+    | uniq -c \
+    | sort -n \
+    | tail -n10 \
+    | gnuplot -c boxplot.gp $(basename "$file")-top10.png &
+done
 ```
 
 ## Submission
